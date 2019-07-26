@@ -1,0 +1,106 @@
+/*回溯法解决多维背包问题*/
+#include<stdio.h>  
+
+int n;					//定义物品个数
+int  m;			        //定义约束项个数
+double S;              //存储最优价值
+    
+int C[60];               //定义数组存储背包对各个属性的约束条件
+int r[50][50];			 //用二维数组存储每个物品的每种属性 
+int r1[60];		         //存储当前背包中的物品属性
+double V[50];			//物品的价值 
+       
+int X[50];              //物品的选取情况 
+int X1[60];             //存储每走过一条路径的物品选取情况
+
+double V1=0;			//定义背包可装入的最优总价值，并且初始化为0
+double V2=0;			//定义当前背包中物品的总价值，并且初始化为0
+
+
+int  BackTrack(int a)  //回溯函数
+{
+	int i;
+    //到达叶子节点
+	if (a >= n) {   
+
+		if (V2 >= V1) {   
+			V1 = V2;   
+			printf("V1=%0.2f\n",V1);        //输出当前的最优价值
+			for (i = 0; i < n; i++) {       
+				printf("%d ", X[i]);        //输出当前的最优选择
+			}
+			printf("\n");
+			for (i = 0; i < n; i++) {    //保存当前路径的物品选取情况
+				X1[i] = X[i];
+			}
+		}
+		return 0;
+	}
+	//进入左子树
+	if (prun_function(a) ) {         //该物品可以装入当前的背包
+		for (i = 0; i < m; i++) {
+			r1[i] =r1[i] + r[i][a];   //把该物品的属性项加到原本背包的属性中      
+		}
+	    V2 =V2 + V[a];               //价值也要加到背包的物品总价值中
+		X[a] = 1;                    //1表示装入背包
+
+		BackTrack(a + 1);          // 回溯
+		for (i = 0; i < m; i++) {				//无法前进就回来，把属性还原
+			r1[i] =r1[i] - r[i][a];
+		}
+		V2 =V2 - V[a];					//价值也要还原
+		X[a] = 0;						//0表示不装入背包
+
+	}
+	//进入右子树
+	BackTrack(a + 1);
+	
+	return 0;
+}
+
+int prun_function(int i){         //声明一个约束函数
+	int z;
+	for (z = 0; z < m; z++) {
+		if (C[z] >= r1[z] + r[z][i])	
+			continue;
+		else 
+			return 0;       //该物品已经无法装入当前的背包
+	}
+
+	return 1;				
+
+}
+
+
+int main(){
+	int i, j;
+
+	scanf("%d", &n);    //输入物品个数
+	scanf("%d", &m);     //输入约束项个数
+	scanf("%lf", &S);    //输入测试给的最优价值
+
+	for (i = 0; i < n; i++)
+		scanf("%lf", &V[i]);    //分别输入每个物品的价值
+
+	for (j = 0; j < m; j++)
+		for (i = 0; i < n; i++)
+			scanf("%d", &r[j][i]); //分别输入每个物品的各个属性
+
+	for (i = 0; i < m; i++)
+		scanf("%d", &C[i]);  //分别输入背包对各个属性的约束条件
+
+	for (i = 0; i < m; i++)
+		r1[i] = 0;
+	BackTrack(0);   //回溯搜索
+
+	printf("\n可选取的物品是：\n");
+		for (i = 0; i < n; i++) {
+			if(X1[i]==1)
+			printf("%d ",i+1);
+		}
+	printf("\n最优总价值是:%0.2f\n", V1);	
+	
+	printf("\n");
+
+	return 0;
+}
